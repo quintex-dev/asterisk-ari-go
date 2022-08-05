@@ -1,3 +1,5 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/quintex-dev/asterisk-ari-go.svg)](https://pkg.go.dev/github.com/quintex-dev/asterisk-ari-go)
+
 # Go API client Asterisk 18.13.0 LTS
 
 This is a production tested client for the [Asterisk](https://www.asterisk.org) 18.13.0 LTS API from **Quintex Software**.

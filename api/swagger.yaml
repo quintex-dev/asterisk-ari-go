@@ -1,0 +1,4426 @@
+---
+swagger: "2.0"
+info:
+  version: "6.0.0"
+  title: "localhost:8088"
+host: "localhost:8088"
+basePath: "/ari"
+tags:
+- name: "applications"
+  description: "Stasis application resources"
+- name: "asterisk"
+  description: "Asterisk resources"
+- name: "bridges"
+  description: "Bridge resources"
+- name: "channels"
+  description: "Channel resources"
+- name: "deviceStates"
+  description: "Device state resources"
+- name: "endpoints"
+  description: "Endpoint resources"
+- name: "events"
+  description: "WebSocket resource"
+- name: "mailboxes"
+  description: "Mailboxes resources"
+- name: "playbacks"
+  description: "Playback control resources"
+- name: "recordings"
+  description: "Recording resources"
+- name: "sounds"
+  description: "Sound resources"
+schemes:
+- "http"
+paths:
+  /applications:
+    get:
+      tags:
+      - "applications"
+      summary: "List all applications."
+      operationId: "list"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Application"
+  /applications/{applicationName}:
+    get:
+      tags:
+      - "applications"
+      summary: "Get details of an application."
+      operationId: "get"
+      parameters:
+      - name: "applicationName"
+        in: "path"
+        description: "Application's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ApplicationName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Application"
+  /applications/{applicationName}/eventFilter:
+    put:
+      tags:
+      - "applications"
+      summary: "Filter application events types."
+      description: "Allowed and/or disallowed event type filtering can be done. The\
+        \ body (parameter) should specify a JSON key/value object that describes the\
+        \ type of event filtering needed. One, or both of the following keys can be\
+        \ designated:<br /><br />\"allowed\" - Specifies an allowed list of event\
+        \ types<br />\"disallowed\" - Specifies a disallowed list of event types<br\
+        \ /><br />Further, each of those key's value should be a JSON array that holds\
+        \ zero, or more JSON key/value objects. Each of these objects must contain\
+        \ the following key with an associated value:<br /><br />\"type\" - The type\
+        \ name of the event to filter<br /><br />The value must be the string name\
+        \ (case sensitive) of the event type that needs filtering. For example:<br\
+        \ /><br />{ \"allowed\": [ { \"type\": \"StasisStart\" }, { \"type\": \"StasisEnd\"\
+        \ } ] }<br /><br />As this specifies only an allowed list, then only those\
+        \ two event type messages are sent to the application. No other event messages\
+        \ are sent.<br /><br />The following rules apply:<br /><br />* If the body\
+        \ is empty, both the allowed and disallowed filters are set empty.<br />*\
+        \ If both list types are given then both are set to their respective values\
+        \ (note, specifying an empty array for a given type sets that type to empty).<br\
+        \ />* If only one list type is given then only that type is set. The other\
+        \ type is not updated.<br />* An empty \"allowed\" list means all events are\
+        \ allowed.<br />* An empty \"disallowed\" list means no events are disallowed.<br\
+        \ />* Disallowed events take precedence over allowed events if the event type\
+        \ is specified in both lists."
+      operationId: "filter"
+      parameters:
+      - name: "applicationName"
+        in: "path"
+        description: "Application's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ApplicationName"
+      - in: "body"
+        name: "filter"
+        description: "Specify which event types to allow/disallow"
+        required: false
+        schema:
+          type: "object"
+        x-exportParamName: "Filter"
+        x-optionalDataType: "Interface{}"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Application"
+  /applications/{applicationName}/subscription:
+    post:
+      tags:
+      - "applications"
+      summary: "Subscribe an application to a event source."
+      description: "Returns the state of the application after the subscriptions have\
+        \ changed"
+      operationId: "subscribe"
+      parameters:
+      - name: "applicationName"
+        in: "path"
+        description: "Application's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ApplicationName"
+      - name: "eventSource"
+        in: "query"
+        description: "URI for event source (channel:{channelId}, bridge:{bridgeId},\
+          \ endpoint:{tech}[/{resource}], deviceState:{deviceName}"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "EventSource"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Application"
+    delete:
+      tags:
+      - "applications"
+      summary: "Unsubscribe an application from an event source."
+      description: "Returns the state of the application after the subscriptions have\
+        \ changed"
+      operationId: "unsubscribe"
+      parameters:
+      - name: "applicationName"
+        in: "path"
+        description: "Application's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ApplicationName"
+      - name: "eventSource"
+        in: "query"
+        description: "URI for event source (channel:{channelId}, bridge:{bridgeId},\
+          \ endpoint:{tech}[/{resource}], deviceState:{deviceName}"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "EventSource"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Application"
+  /asterisk/config/dynamic/{configClass}/{objectType}/{id}:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Retrieve a dynamic configuration object."
+      operationId: "getObject"
+      parameters:
+      - name: "configClass"
+        in: "path"
+        description: "The configuration class containing dynamic configuration objects."
+        required: true
+        type: "string"
+        x-exportParamName: "ConfigClass"
+      - name: "objectType"
+        in: "path"
+        description: "The type of configuration object to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ObjectType"
+      - name: "id"
+        in: "path"
+        description: "The unique identifier of the object to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ConfigTuple"
+    put:
+      tags:
+      - "asterisk"
+      summary: "Create or update a dynamic configuration object."
+      operationId: "updateObject"
+      parameters:
+      - name: "configClass"
+        in: "path"
+        description: "The configuration class containing dynamic configuration objects."
+        required: true
+        type: "string"
+        x-exportParamName: "ConfigClass"
+      - name: "objectType"
+        in: "path"
+        description: "The type of configuration object to create or update."
+        required: true
+        type: "string"
+        x-exportParamName: "ObjectType"
+      - name: "id"
+        in: "path"
+        description: "The unique identifier of the object to create or update."
+        required: true
+        type: "string"
+        x-exportParamName: "Id"
+      - in: "body"
+        name: "fields"
+        description: "The body object should have a value that is a list of ConfigTuples,\
+          \ which provide the fields to update. Ex. [ { \"attribute\": \"directmedia\"\
+          , \"value\": \"false\" } ]"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Fields"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ConfigTuple"
+    delete:
+      tags:
+      - "asterisk"
+      summary: "Delete a dynamic configuration object."
+      operationId: "deleteObject"
+      parameters:
+      - name: "configClass"
+        in: "path"
+        description: "The configuration class containing dynamic configuration objects."
+        required: true
+        type: "string"
+        x-exportParamName: "ConfigClass"
+      - name: "objectType"
+        in: "path"
+        description: "The type of configuration object to delete."
+        required: true
+        type: "string"
+        x-exportParamName: "ObjectType"
+      - name: "id"
+        in: "path"
+        description: "The unique identifier of the object to delete."
+        required: true
+        type: "string"
+        x-exportParamName: "Id"
+      responses:
+        "200":
+          description: "No response was specified"
+  /asterisk/info:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Gets Asterisk system information."
+      operationId: "getInfo"
+      parameters:
+      - name: "only"
+        in: "query"
+        description: "Filter information returned"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Only"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/AsteriskInfo"
+  /asterisk/logging:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Gets Asterisk log channel information."
+      operationId: "listLogChannels"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/LogChannel"
+  /asterisk/logging/{logChannelName}:
+    post:
+      tags:
+      - "asterisk"
+      summary: "Adds a log channel."
+      operationId: "addLog"
+      parameters:
+      - name: "logChannelName"
+        in: "path"
+        description: "The log channel to add"
+        required: true
+        type: "string"
+        x-exportParamName: "LogChannelName"
+      - name: "configuration"
+        in: "query"
+        description: "levels of the log channel"
+        required: true
+        type: "string"
+        x-exportParamName: "Configuration"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "asterisk"
+      summary: "Deletes a log channel."
+      operationId: "deleteLog"
+      parameters:
+      - name: "logChannelName"
+        in: "path"
+        description: "Log channels name"
+        required: true
+        type: "string"
+        x-exportParamName: "LogChannelName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /asterisk/logging/{logChannelName}/rotate:
+    put:
+      tags:
+      - "asterisk"
+      summary: "Rotates a log channel."
+      operationId: "rotateLog"
+      parameters:
+      - name: "logChannelName"
+        in: "path"
+        description: "Log channel's name"
+        required: true
+        type: "string"
+        x-exportParamName: "LogChannelName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /asterisk/modules:
+    get:
+      tags:
+      - "asterisk"
+      summary: "List Asterisk modules."
+      operationId: "listModules"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Module"
+  /asterisk/modules/{moduleName}:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Get Asterisk module information."
+      operationId: "getModule"
+      parameters:
+      - name: "moduleName"
+        in: "path"
+        description: "Module's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ModuleName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Module"
+    post:
+      tags:
+      - "asterisk"
+      summary: "Load an Asterisk module."
+      operationId: "loadModule"
+      parameters:
+      - name: "moduleName"
+        in: "path"
+        description: "Module's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ModuleName"
+      responses:
+        "200":
+          description: "No response was specified"
+    put:
+      tags:
+      - "asterisk"
+      summary: "Reload an Asterisk module."
+      operationId: "reloadModule"
+      parameters:
+      - name: "moduleName"
+        in: "path"
+        description: "Module's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ModuleName"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "asterisk"
+      summary: "Unload an Asterisk module."
+      operationId: "unloadModule"
+      parameters:
+      - name: "moduleName"
+        in: "path"
+        description: "Module's name"
+        required: true
+        type: "string"
+        x-exportParamName: "ModuleName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /asterisk/ping:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Response pong message."
+      operationId: "ping"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/AsteriskPing"
+  /asterisk/variable:
+    get:
+      tags:
+      - "asterisk"
+      summary: "Get the value of a global variable."
+      operationId: "getGlobalVar"
+      parameters:
+      - name: "variable"
+        in: "query"
+        description: "The variable to get"
+        required: true
+        type: "string"
+        x-exportParamName: "Variable"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Variable"
+    post:
+      tags:
+      - "asterisk"
+      summary: "Set the value of a global variable."
+      operationId: "setGlobalVar"
+      parameters:
+      - name: "variable"
+        in: "query"
+        description: "The variable to set"
+        required: true
+        type: "string"
+        x-exportParamName: "Variable"
+      - name: "value"
+        in: "query"
+        description: "The value to set the variable to"
+        required: false
+        type: "string"
+        x-exportParamName: "Value"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges:
+    get:
+      tags:
+      - "bridges"
+      summary: "List all active bridges in Asterisk."
+      operationId: "listbridges"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Bridge"
+    post:
+      tags:
+      - "bridges"
+      summary: "Create a new bridge."
+      description: "This bridge persists until it has been shut down, or Asterisk\
+        \ has been shut down."
+      operationId: "create"
+      parameters:
+      - name: "type"
+        in: "query"
+        description: "Comma separated list of bridge type attributes (mixing, holding,\
+          \ dtmf_events, proxy_media, video_sfu)."
+        required: false
+        type: "string"
+        x-exportParamName: "Type_"
+        x-optionalDataType: "String"
+      - name: "bridgeId"
+        in: "query"
+        description: "Unique ID to give to the bridge being created."
+        required: false
+        type: "string"
+        x-exportParamName: "BridgeId"
+        x-optionalDataType: "String"
+      - name: "name"
+        in: "query"
+        description: "Name to give to the bridge being created."
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Bridge"
+  /bridges/{bridgeId}:
+    get:
+      tags:
+      - "bridges"
+      summary: "Get bridge details."
+      operationId: "getbridge"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Bridge"
+    post:
+      tags:
+      - "bridges"
+      summary: "Create a new bridge or updates an existing one."
+      description: "This bridge persists until it has been shut down, or Asterisk\
+        \ has been shut down."
+      operationId: "createWithId"
+      parameters:
+      - name: "type"
+        in: "query"
+        description: "Comma separated list of bridge type attributes (mixing, holding,\
+          \ dtmf_events, proxy_media, video_sfu) to set."
+        required: false
+        type: "string"
+        x-exportParamName: "Type_"
+        x-optionalDataType: "String"
+      - name: "bridgeId"
+        in: "path"
+        description: "Unique ID to give to the bridge being created."
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "name"
+        in: "query"
+        description: "Set the name of the bridge."
+        required: false
+        type: "string"
+        x-exportParamName: "Name"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Bridge"
+    delete:
+      tags:
+      - "bridges"
+      summary: "Shut down a bridge."
+      description: "If any channels are in this bridge, they will be removed and resume\
+        \ whatever they were doing beforehand."
+      operationId: "destroy"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges/{bridgeId}/addChannel:
+    post:
+      tags:
+      - "bridges"
+      summary: "Add a channel to a bridge."
+      operationId: "addChannel"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "channel"
+        in: "query"
+        description: "Ids of channels to add to bridge"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Channel"
+      - name: "role"
+        in: "query"
+        description: "Channel's role in the bridge"
+        required: false
+        type: "string"
+        x-exportParamName: "Role"
+        x-optionalDataType: "String"
+      - name: "absorbDTMF"
+        in: "query"
+        description: "Absorb DTMF coming from this channel, preventing it to pass\
+          \ through to the bridge"
+        required: false
+        type: "boolean"
+        default: false
+        x-exportParamName: "AbsorbDTMF"
+        x-optionalDataType: "Bool"
+      - name: "mute"
+        in: "query"
+        description: "Mute audio from this channel, preventing it to pass through\
+          \ to the bridge"
+        required: false
+        type: "boolean"
+        default: false
+        x-exportParamName: "Mute"
+        x-optionalDataType: "Bool"
+      - name: "inhibitConnectedLineUpdates"
+        in: "query"
+        description: "Do not present the identity of the newly connected channel to\
+          \ other bridge members"
+        required: false
+        type: "boolean"
+        default: false
+        x-exportParamName: "InhibitConnectedLineUpdates"
+        x-optionalDataType: "Bool"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges/{bridgeId}/moh:
+    post:
+      tags:
+      - "bridges"
+      summary: "Play music on hold to a bridge or change the MOH class that is playing."
+      operationId: "startMoh"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "mohClass"
+        in: "query"
+        description: "Channel's id"
+        required: false
+        type: "string"
+        x-exportParamName: "MohClass"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "bridges"
+      summary: "Stop playing music on hold to a bridge."
+      description: "This will only stop music on hold being played via POST bridges/{bridgeId}/moh."
+      operationId: "stopMoh"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges/{bridgeId}/play:
+    post:
+      tags:
+      - "bridges"
+      summary: "Start playback of media on a bridge."
+      description: "The media URI may be any of a number of URI's. Currently sound:,\
+        \ recording:, number:, digits:, characters:, and tone: URI's are supported.\
+        \ This operation creates a playback resource that can be used to control the\
+        \ playback of media (pause, rewind, fast forward, etc.)"
+      operationId: "play"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "media"
+        in: "query"
+        description: "Media URIs to play."
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Media"
+      - name: "lang"
+        in: "query"
+        description: "For sounds, selects language for sound."
+        required: false
+        type: "string"
+        x-exportParamName: "Lang"
+        x-optionalDataType: "String"
+      - name: "offsetms"
+        in: "query"
+        description: "Number of milliseconds to skip before playing. Only applies\
+          \ to the first URI if multiple media URIs are specified."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "Offsetms"
+        x-optionalDataType: "Int32"
+      - name: "skipms"
+        in: "query"
+        description: "Number of milliseconds to skip for forward/reverse operations."
+        required: false
+        type: "integer"
+        default: 3000
+        format: "int32"
+        x-exportParamName: "Skipms"
+        x-optionalDataType: "Int32"
+      - name: "playbackId"
+        in: "query"
+        description: "Playback Id."
+        required: false
+        type: "string"
+        x-exportParamName: "PlaybackId"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Playback"
+  /bridges/{bridgeId}/play/{playbackId}:
+    post:
+      tags:
+      - "bridges"
+      summary: "Start playback of media on a bridge."
+      description: "The media URI may be any of a number of URI's. Currently sound:,\
+        \ recording:, number:, digits:, characters:, and tone: URI's are supported.\
+        \ This operation creates a playback resource that can be used to control the\
+        \ playback of media (pause, rewind, fast forward, etc.)"
+      operationId: "playWithId"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "playbackId"
+        in: "path"
+        description: "Playback ID."
+        required: true
+        type: "string"
+        x-exportParamName: "PlaybackId"
+      - name: "media"
+        in: "query"
+        description: "Media URIs to play."
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Media"
+      - name: "lang"
+        in: "query"
+        description: "For sounds, selects language for sound."
+        required: false
+        type: "string"
+        x-exportParamName: "Lang"
+        x-optionalDataType: "String"
+      - name: "offsetms"
+        in: "query"
+        description: "Number of milliseconds to skip before playing. Only applies\
+          \ to the first URI if multiple media URIs are specified."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "Offsetms"
+        x-optionalDataType: "Int32"
+      - name: "skipms"
+        in: "query"
+        description: "Number of milliseconds to skip for forward/reverse operations."
+        required: false
+        type: "integer"
+        default: 3000
+        format: "int32"
+        x-exportParamName: "Skipms"
+        x-optionalDataType: "Int32"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Playback"
+  /bridges/{bridgeId}/record:
+    post:
+      tags:
+      - "bridges"
+      summary: "Start a recording."
+      description: "This records the mixed audio from all channels participating in\
+        \ this bridge."
+      operationId: "record"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "name"
+        in: "query"
+        description: "Recording's filename"
+        required: true
+        type: "string"
+        x-exportParamName: "Name"
+      - name: "format"
+        in: "query"
+        description: "Format to encode audio in"
+        required: true
+        type: "string"
+        x-exportParamName: "Format"
+      - name: "maxDurationSeconds"
+        in: "query"
+        description: "Maximum duration of the recording, in seconds. 0 for no limit."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "MaxDurationSeconds"
+        x-optionalDataType: "Int32"
+      - name: "maxSilenceSeconds"
+        in: "query"
+        description: "Maximum duration of silence, in seconds. 0 for no limit."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "MaxSilenceSeconds"
+        x-optionalDataType: "Int32"
+      - name: "ifExists"
+        in: "query"
+        description: "Action to take if a recording with the same name already exists."
+        required: false
+        type: "string"
+        default: "fail"
+        x-exportParamName: "IfExists"
+        x-optionalDataType: "String"
+      - name: "beep"
+        in: "query"
+        description: "Play beep when recording begins"
+        required: false
+        type: "boolean"
+        default: false
+        x-exportParamName: "Beep"
+        x-optionalDataType: "Bool"
+      - name: "terminateOn"
+        in: "query"
+        description: "DTMF input to terminate recording."
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "TerminateOn"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/LiveRecording"
+  /bridges/{bridgeId}/removeChannel:
+    post:
+      tags:
+      - "bridges"
+      summary: "Remove a channel from a bridge."
+      operationId: "removeChannel"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "channel"
+        in: "query"
+        description: "Ids of channels to remove from bridge"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Channel"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges/{bridgeId}/videoSource:
+    delete:
+      tags:
+      - "bridges"
+      summary: "Removes any explicit video source in a multi-party mixing bridge.\
+        \ This operation has no effect on bridges with two or fewer participants.\
+        \ When no explicit video source is set, talk detection will be used to determine\
+        \ the active video stream."
+      operationId: "clearVideoSource"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /bridges/{bridgeId}/videoSource/{channelId}:
+    post:
+      tags:
+      - "bridges"
+      summary: "Set a channel as the video source in a multi-party mixing bridge.\
+        \ This operation has no effect on bridges with two or fewer participants."
+      operationId: "setVideoSource"
+      parameters:
+      - name: "bridgeId"
+        in: "path"
+        description: "Bridge's id"
+        required: true
+        type: "string"
+        x-exportParamName: "BridgeId"
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels:
+    get:
+      tags:
+      - "channels"
+      summary: "List all active channels in Asterisk."
+      operationId: "listchannels"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Channel"
+    post:
+      tags:
+      - "channels"
+      summary: "Create a new channel (originate)."
+      description: "The new channel is created immediately and a snapshot of it returned.\
+        \ If a Stasis application is provided it will be automatically subscribed\
+        \ to the originated channel for further events and updates."
+      operationId: "originate"
+      parameters:
+      - name: "endpoint"
+        in: "query"
+        description: "Endpoint to call."
+        required: true
+        type: "string"
+        x-exportParamName: "Endpoint"
+      - name: "extension"
+        in: "query"
+        description: "The extension to dial after the endpoint answers. Mutually exclusive\
+          \ with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Extension"
+        x-optionalDataType: "String"
+      - name: "context"
+        in: "query"
+        description: "The context to dial after the endpoint answers. If omitted,\
+          \ uses 'default'. Mutually exclusive with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Context"
+        x-optionalDataType: "String"
+      - name: "priority"
+        in: "query"
+        description: "The priority to dial after the endpoint answers. If omitted,\
+          \ uses 1. Mutually exclusive with 'app'."
+        required: false
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "Priority"
+        x-optionalDataType: "Int64"
+      - name: "label"
+        in: "query"
+        description: "The label to dial after the endpoint answers. Will supersede\
+          \ 'priority' if provided. Mutually exclusive with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Label"
+        x-optionalDataType: "String"
+      - name: "app"
+        in: "query"
+        description: "The application that is subscribed to the originated channel.\
+          \ When the channel is answered, it will be passed to this Stasis application.\
+          \ Mutually exclusive with 'context', 'extension', 'priority', and 'label'."
+        required: false
+        type: "string"
+        x-exportParamName: "App"
+        x-optionalDataType: "String"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application\
+          \ provided by 'app'. Mutually exclusive with 'context', 'extension', 'priority',\
+          \ and 'label'."
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      - name: "callerId"
+        in: "query"
+        description: "CallerID to use when dialing the endpoint or extension."
+        required: false
+        type: "string"
+        x-exportParamName: "CallerId"
+        x-optionalDataType: "String"
+      - name: "timeout"
+        in: "query"
+        description: "Timeout (in seconds) before giving up dialing, or -1 for no\
+          \ timeout."
+        required: false
+        type: "integer"
+        default: 30
+        format: "int32"
+        x-exportParamName: "Timeout"
+        x-optionalDataType: "Int32"
+      - in: "body"
+        name: "variables"
+        description: "The \"variables\" key in the body object holds variable key/value\
+          \ pairs to set on the channel on creation. Other keys in the body object\
+          \ are interpreted as query parameters. Ex. { \"endpoint\": \"SIP/Alice\"\
+          , \"variables\": { \"CALLERID(name)\": \"Alice\" } }"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      - name: "channelId"
+        in: "query"
+        description: "The unique id to assign the channel on creation."
+        required: false
+        type: "string"
+        x-exportParamName: "ChannelId"
+        x-optionalDataType: "String"
+      - name: "otherChannelId"
+        in: "query"
+        description: "The unique id to assign the second channel when using local\
+          \ channels."
+        required: false
+        type: "string"
+        x-exportParamName: "OtherChannelId"
+        x-optionalDataType: "String"
+      - name: "originator"
+        in: "query"
+        description: "The unique id of the channel which is originating this one."
+        required: false
+        type: "string"
+        x-exportParamName: "Originator"
+        x-optionalDataType: "String"
+      - name: "formats"
+        in: "query"
+        description: "The format name capability list to use if originator is not\
+          \ specified. Ex. \"ulaw,slin16\".  Format names can be found with \"core\
+          \ show codecs\"."
+        required: false
+        type: "string"
+        x-exportParamName: "Formats"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+  /channels/create:
+    post:
+      tags:
+      - "channels"
+      summary: "Create channel."
+      operationId: "createchannel"
+      parameters:
+      - name: "endpoint"
+        in: "query"
+        description: "Endpoint for channel communication"
+        required: true
+        type: "string"
+        x-exportParamName: "Endpoint"
+      - name: "app"
+        in: "query"
+        description: "Stasis Application to place channel into"
+        required: true
+        type: "string"
+        x-exportParamName: "App"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application\
+          \ provided by 'app'. Mutually exclusive with 'context', 'extension', 'priority',\
+          \ and 'label'."
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      - name: "channelId"
+        in: "query"
+        description: "The unique id to assign the channel on creation."
+        required: false
+        type: "string"
+        x-exportParamName: "ChannelId"
+        x-optionalDataType: "String"
+      - name: "otherChannelId"
+        in: "query"
+        description: "The unique id to assign the second channel when using local\
+          \ channels."
+        required: false
+        type: "string"
+        x-exportParamName: "OtherChannelId"
+        x-optionalDataType: "String"
+      - name: "originator"
+        in: "query"
+        description: "Unique ID of the calling channel"
+        required: false
+        type: "string"
+        x-exportParamName: "Originator"
+        x-optionalDataType: "String"
+      - name: "formats"
+        in: "query"
+        description: "The format name capability list to use if originator is not\
+          \ specified. Ex. \"ulaw,slin16\".  Format names can be found with \"core\
+          \ show codecs\"."
+        required: false
+        type: "string"
+        x-exportParamName: "Formats"
+        x-optionalDataType: "String"
+      - in: "body"
+        name: "variables"
+        description: "The \"variables\" key in the body object holds variable key/value\
+          \ pairs to set on the channel on creation. Other keys in the body object\
+          \ are interpreted as query parameters. Ex. { \"endpoint\": \"SIP/Alice\"\
+          , \"variables\": { \"CALLERID(name)\": \"Alice\" } }"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+  /channels/externalMedia:
+    post:
+      tags:
+      - "channels"
+      summary: "Start an External Media session."
+      description: "Create a channel to an External Media source/sink."
+      operationId: "externalMedia"
+      parameters:
+      - name: "channelId"
+        in: "query"
+        description: "The unique id to assign the channel on creation."
+        required: false
+        type: "string"
+        x-exportParamName: "ChannelId"
+        x-optionalDataType: "String"
+      - name: "app"
+        in: "query"
+        description: "Stasis Application to place channel into"
+        required: true
+        type: "string"
+        x-exportParamName: "App"
+      - in: "body"
+        name: "variables"
+        description: "The \"variables\" key in the body object holds variable key/value\
+          \ pairs to set on the channel on creation. Other keys in the body object\
+          \ are interpreted as query parameters. Ex. { \"endpoint\": \"SIP/Alice\"\
+          , \"variables\": { \"CALLERID(name)\": \"Alice\" } }"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      - name: "external_host"
+        in: "query"
+        description: "Hostname/ip:port of external host"
+        required: true
+        type: "string"
+        x-exportParamName: "ExternalHost"
+      - name: "encapsulation"
+        in: "query"
+        description: "Payload encapsulation protocol"
+        required: false
+        type: "string"
+        default: "rtp"
+        x-exportParamName: "Encapsulation"
+        x-optionalDataType: "String"
+      - name: "transport"
+        in: "query"
+        description: "Transport protocol"
+        required: false
+        type: "string"
+        default: "udp"
+        x-exportParamName: "Transport"
+        x-optionalDataType: "String"
+      - name: "connection_type"
+        in: "query"
+        description: "Connection type (client/server)"
+        required: false
+        type: "string"
+        default: "client"
+        x-exportParamName: "ConnectionType"
+        x-optionalDataType: "String"
+      - name: "format"
+        in: "query"
+        description: "Format to encode audio in"
+        required: true
+        type: "string"
+        x-exportParamName: "Format"
+      - name: "direction"
+        in: "query"
+        description: "External media direction"
+        required: false
+        type: "string"
+        default: "both"
+        x-exportParamName: "Direction"
+        x-optionalDataType: "String"
+      - name: "data"
+        in: "query"
+        description: "An arbitrary data field"
+        required: false
+        type: "string"
+        x-exportParamName: "Data"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+  /channels/{channelId}:
+    get:
+      tags:
+      - "channels"
+      summary: "Channel details."
+      operationId: "getchannel"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+    post:
+      tags:
+      - "channels"
+      summary: "Create a new channel (originate with id)."
+      description: "The new channel is created immediately and a snapshot of it returned.\
+        \ If a Stasis application is provided it will be automatically subscribed\
+        \ to the originated channel for further events and updates."
+      operationId: "originateWithId"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "The unique id to assign the channel on creation."
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "endpoint"
+        in: "query"
+        description: "Endpoint to call."
+        required: true
+        type: "string"
+        x-exportParamName: "Endpoint"
+      - name: "extension"
+        in: "query"
+        description: "The extension to dial after the endpoint answers. Mutually exclusive\
+          \ with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Extension"
+        x-optionalDataType: "String"
+      - name: "context"
+        in: "query"
+        description: "The context to dial after the endpoint answers. If omitted,\
+          \ uses 'default'. Mutually exclusive with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Context"
+        x-optionalDataType: "String"
+      - name: "priority"
+        in: "query"
+        description: "The priority to dial after the endpoint answers. If omitted,\
+          \ uses 1. Mutually exclusive with 'app'."
+        required: false
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "Priority"
+        x-optionalDataType: "Int64"
+      - name: "label"
+        in: "query"
+        description: "The label to dial after the endpoint answers. Will supersede\
+          \ 'priority' if provided. Mutually exclusive with 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "Label"
+        x-optionalDataType: "String"
+      - name: "app"
+        in: "query"
+        description: "The application that is subscribed to the originated channel.\
+          \ When the channel is answered, it will be passed to this Stasis application.\
+          \ Mutually exclusive with 'context', 'extension', 'priority', and 'label'."
+        required: false
+        type: "string"
+        x-exportParamName: "App"
+        x-optionalDataType: "String"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application\
+          \ provided by 'app'. Mutually exclusive with 'context', 'extension', 'priority',\
+          \ and 'label'."
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      - name: "callerId"
+        in: "query"
+        description: "CallerID to use when dialing the endpoint or extension."
+        required: false
+        type: "string"
+        x-exportParamName: "CallerId"
+        x-optionalDataType: "String"
+      - name: "timeout"
+        in: "query"
+        description: "Timeout (in seconds) before giving up dialing, or -1 for no\
+          \ timeout."
+        required: false
+        type: "integer"
+        default: 30
+        format: "int32"
+        x-exportParamName: "Timeout"
+        x-optionalDataType: "Int32"
+      - in: "body"
+        name: "variables"
+        description: "The \"variables\" key in the body object holds variable key/value\
+          \ pairs to set on the channel on creation. Other keys in the body object\
+          \ are interpreted as query parameters. Ex. { \"endpoint\": \"SIP/Alice\"\
+          , \"variables\": { \"CALLERID(name)\": \"Alice\" } }"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      - name: "otherChannelId"
+        in: "query"
+        description: "The unique id to assign the second channel when using local\
+          \ channels."
+        required: false
+        type: "string"
+        x-exportParamName: "OtherChannelId"
+        x-optionalDataType: "String"
+      - name: "originator"
+        in: "query"
+        description: "The unique id of the channel which is originating this one."
+        required: false
+        type: "string"
+        x-exportParamName: "Originator"
+        x-optionalDataType: "String"
+      - name: "formats"
+        in: "query"
+        description: "The format name capability list to use if originator is not\
+          \ specified. Ex. \"ulaw,slin16\".  Format names can be found with \"core\
+          \ show codecs\"."
+        required: false
+        type: "string"
+        x-exportParamName: "Formats"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+    delete:
+      tags:
+      - "channels"
+      summary: "Delete (i.e. hangup) a channel."
+      operationId: "hangup"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "reason_code"
+        in: "query"
+        description: "The reason code for hanging up the channel for detail use. Mutually\
+          \ exclusive with 'reason'. See detail hangup codes at here. https://wiki.asterisk.org/wiki/display/AST/Hangup+Cause+Mappings"
+        required: false
+        type: "string"
+        x-exportParamName: "ReasonCode"
+        x-optionalDataType: "String"
+      - name: "reason"
+        in: "query"
+        description: "Reason for hanging up the channel for simple use. Mutually exclusive\
+          \ with 'reason_code'."
+        required: false
+        type: "string"
+        x-exportParamName: "Reason"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/answer:
+    post:
+      tags:
+      - "channels"
+      summary: "Answer a channel."
+      operationId: "answer"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/continue:
+    post:
+      tags:
+      - "channels"
+      summary: "Exit application; continue execution in the dialplan."
+      operationId: "continueInDialplan"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "context"
+        in: "query"
+        description: "The context to continue to."
+        required: false
+        type: "string"
+        x-exportParamName: "Context"
+        x-optionalDataType: "String"
+      - name: "extension"
+        in: "query"
+        description: "The extension to continue to."
+        required: false
+        type: "string"
+        x-exportParamName: "Extension"
+        x-optionalDataType: "String"
+      - name: "priority"
+        in: "query"
+        description: "The priority to continue to."
+        required: false
+        type: "integer"
+        format: "int32"
+        x-exportParamName: "Priority"
+        x-optionalDataType: "Int32"
+      - name: "label"
+        in: "query"
+        description: "The label to continue to - will supersede 'priority' if both\
+          \ are provided."
+        required: false
+        type: "string"
+        x-exportParamName: "Label"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/dial:
+    post:
+      tags:
+      - "channels"
+      summary: "Dial a created channel."
+      operationId: "dial"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "caller"
+        in: "query"
+        description: "Channel ID of caller"
+        required: false
+        type: "string"
+        x-exportParamName: "Caller"
+        x-optionalDataType: "String"
+      - name: "timeout"
+        in: "query"
+        description: "Dial timeout"
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "Timeout"
+        x-optionalDataType: "Int32"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/dtmf:
+    post:
+      tags:
+      - "channels"
+      summary: "Send provided DTMF to a given channel."
+      operationId: "sendDTMF"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "dtmf"
+        in: "query"
+        description: "DTMF To send."
+        required: false
+        type: "string"
+        x-exportParamName: "Dtmf"
+        x-optionalDataType: "String"
+      - name: "before"
+        in: "query"
+        description: "Amount of time to wait before DTMF digits (specified in milliseconds)\
+          \ start."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "Before"
+        x-optionalDataType: "Int32"
+      - name: "between"
+        in: "query"
+        description: "Amount of time in between DTMF digits (specified in milliseconds)."
+        required: false
+        type: "integer"
+        default: 100
+        format: "int32"
+        x-exportParamName: "Between"
+        x-optionalDataType: "Int32"
+      - name: "duration"
+        in: "query"
+        description: "Length of each DTMF digit (specified in milliseconds)."
+        required: false
+        type: "integer"
+        default: 100
+        format: "int32"
+        x-exportParamName: "Duration"
+        x-optionalDataType: "Int32"
+      - name: "after"
+        in: "query"
+        description: "Amount of time to wait after DTMF digits (specified in milliseconds)\
+          \ end."
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "After"
+        x-optionalDataType: "Int32"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/hold:
+    post:
+      tags:
+      - "channels"
+      summary: "Hold a channel."
+      operationId: "hold"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "channels"
+      summary: "Remove a channel from hold."
+      operationId: "unhold"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/moh:
+    post:
+      tags:
+      - "channels"
+      summary: "Play music on hold to a channel."
+      description: "Using media operations such as /play on a channel playing MOH\
+        \ in this manner will suspend MOH without resuming automatically. If continuing\
+        \ music on hold is desired, the stasis application must reinitiate music on\
+        \ hold."
+      operationId: "addMoh"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "mohClass"
+        in: "query"
+        description: "Music on hold class to use"
+        required: false
+        type: "string"
+        x-exportParamName: "MohClass"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "channels"
+      summary: "Stop playing music on hold to a channel."
+      operationId: "deletemoh"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/move:
+    post:
+      tags:
+      - "channels"
+      summary: "Move the channel from one Stasis application to another."
+      operationId: "move"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "app"
+        in: "query"
+        description: "The channel will be passed to this Stasis application."
+        required: true
+        type: "string"
+        x-exportParamName: "App"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application\
+          \ provided by 'app'."
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/mute:
+    post:
+      tags:
+      - "channels"
+      summary: "Mute a channel."
+      operationId: "mute"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "direction"
+        in: "query"
+        description: "Direction in which to mute audio"
+        required: false
+        type: "string"
+        default: "both"
+        x-exportParamName: "Direction"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "channels"
+      summary: "Unmute a channel."
+      operationId: "unmute"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "direction"
+        in: "query"
+        description: "Direction in which to unmute audio"
+        required: false
+        type: "string"
+        default: "both"
+        x-exportParamName: "Direction"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/play:
+    post:
+      tags:
+      - "channels"
+      summary: "Start playback of media."
+      description: "The media URI may be any of a number of URI's. Currently sound:,\
+        \ recording:, number:, digits:, characters:, and tone: URI's are supported.\
+        \ This operation creates a playback resource that can be used to control the\
+        \ playback of media (pause, rewind, fast forward, etc.)"
+      operationId: "playsound"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "media"
+        in: "query"
+        description: "Media URIs to play."
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Media"
+      - name: "lang"
+        in: "query"
+        description: "For sounds, selects language for sound."
+        required: false
+        type: "string"
+        x-exportParamName: "Lang"
+        x-optionalDataType: "String"
+      - name: "offsetms"
+        in: "query"
+        description: "Number of milliseconds to skip before playing. Only applies\
+          \ to the first URI if multiple media URIs are specified."
+        required: false
+        type: "integer"
+        format: "int32"
+        x-exportParamName: "Offsetms"
+        x-optionalDataType: "Int32"
+      - name: "skipms"
+        in: "query"
+        description: "Number of milliseconds to skip for forward/reverse operations."
+        required: false
+        type: "integer"
+        default: 3000
+        format: "int32"
+        x-exportParamName: "Skipms"
+        x-optionalDataType: "Int32"
+      - name: "playbackId"
+        in: "query"
+        description: "Playback ID."
+        required: false
+        type: "string"
+        x-exportParamName: "PlaybackId"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Playback"
+  /channels/{channelId}/play/{playbackId}:
+    post:
+      tags:
+      - "channels"
+      summary: "Start playback of media and specify the playbackId."
+      description: "The media URI may be any of a number of URI's. Currently sound:,\
+        \ recording:, number:, digits:, characters:, and tone: URI's are supported.\
+        \ This operation creates a playback resource that can be used to control the\
+        \ playback of media (pause, rewind, fast forward, etc.)"
+      operationId: "playSoundWithId"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "playbackId"
+        in: "path"
+        description: "Playback ID."
+        required: true
+        type: "string"
+        x-exportParamName: "PlaybackId"
+      - name: "media"
+        in: "query"
+        description: "Media URIs to play."
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Media"
+      - name: "lang"
+        in: "query"
+        description: "For sounds, selects language for sound."
+        required: false
+        type: "string"
+        x-exportParamName: "Lang"
+        x-optionalDataType: "String"
+      - name: "offsetms"
+        in: "query"
+        description: "Number of milliseconds to skip before playing. Only applies\
+          \ to the first URI if multiple media URIs are specified."
+        required: false
+        type: "integer"
+        format: "int32"
+        x-exportParamName: "Offsetms"
+        x-optionalDataType: "Int32"
+      - name: "skipms"
+        in: "query"
+        description: "Number of milliseconds to skip for forward/reverse operations."
+        required: false
+        type: "integer"
+        default: 3000
+        format: "int32"
+        x-exportParamName: "Skipms"
+        x-optionalDataType: "Int32"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Playback"
+  /channels/{channelId}/record:
+    post:
+      tags:
+      - "channels"
+      summary: "Start a recording."
+      description: "Record audio from a channel. Note that this will not capture audio\
+        \ sent to the channel. The bridge itself has a record feature if that's what\
+        \ you want."
+      operationId: "recordchannel"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "name"
+        in: "query"
+        description: "Recording's filename"
+        required: true
+        type: "string"
+        x-exportParamName: "Name"
+      - name: "format"
+        in: "query"
+        description: "Format to encode audio in"
+        required: true
+        type: "string"
+        x-exportParamName: "Format"
+      - name: "maxDurationSeconds"
+        in: "query"
+        description: "Maximum duration of the recording, in seconds. 0 for no limit"
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "MaxDurationSeconds"
+        x-optionalDataType: "Int32"
+      - name: "maxSilenceSeconds"
+        in: "query"
+        description: "Maximum duration of silence, in seconds. 0 for no limit"
+        required: false
+        type: "integer"
+        default: 0
+        format: "int32"
+        x-exportParamName: "MaxSilenceSeconds"
+        x-optionalDataType: "Int32"
+      - name: "ifExists"
+        in: "query"
+        description: "Action to take if a recording with the same name already exists."
+        required: false
+        type: "string"
+        default: "fail"
+        x-exportParamName: "IfExists"
+        x-optionalDataType: "String"
+      - name: "beep"
+        in: "query"
+        description: "Play beep when recording begins"
+        required: false
+        type: "boolean"
+        default: false
+        x-exportParamName: "Beep"
+        x-optionalDataType: "Bool"
+      - name: "terminateOn"
+        in: "query"
+        description: "DTMF input to terminate recording"
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "TerminateOn"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/LiveRecording"
+  /channels/{channelId}/redirect:
+    post:
+      tags:
+      - "channels"
+      summary: "Redirect the channel to a different location."
+      operationId: "redirect"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "endpoint"
+        in: "query"
+        description: "The endpoint to redirect the channel to"
+        required: true
+        type: "string"
+        x-exportParamName: "Endpoint"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/ring:
+    post:
+      tags:
+      - "channels"
+      summary: "Indicate ringing to a channel."
+      operationId: "ring"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "channels"
+      summary: "Stop ringing indication on a channel if locally generated."
+      operationId: "ringStop"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/rtp_statistics:
+    get:
+      tags:
+      - "channels"
+      summary: "RTP stats on a channel."
+      operationId: "rtpstatistics"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/RTPstat"
+  /channels/{channelId}/silence:
+    post:
+      tags:
+      - "channels"
+      summary: "Play silence to a channel."
+      description: "Using media operations such as /play on a channel playing silence\
+        \ in this manner will suspend silence without resuming automatically."
+      operationId: "startSilence"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "channels"
+      summary: "Stop playing silence to a channel."
+      operationId: "stopSilence"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /channels/{channelId}/snoop:
+    post:
+      tags:
+      - "channels"
+      summary: "Start snooping."
+      description: "Snoop (spy/whisper) on a specific channel."
+      operationId: "snoopChannel"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "spy"
+        in: "query"
+        description: "Direction of audio to spy on"
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "Spy"
+        x-optionalDataType: "String"
+      - name: "whisper"
+        in: "query"
+        description: "Direction of audio to whisper into"
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "Whisper"
+        x-optionalDataType: "String"
+      - name: "app"
+        in: "query"
+        description: "Application the snooping channel is placed into"
+        required: true
+        type: "string"
+        x-exportParamName: "App"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application"
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      - name: "snoopId"
+        in: "query"
+        description: "Unique ID to assign to snooping channel"
+        required: false
+        type: "string"
+        x-exportParamName: "SnoopId"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+  /channels/{channelId}/snoop/{snoopId}:
+    post:
+      tags:
+      - "channels"
+      summary: "Start snooping."
+      description: "Snoop (spy/whisper) on a specific channel."
+      operationId: "snoopChannelWithId"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "snoopId"
+        in: "path"
+        description: "Unique ID to assign to snooping channel"
+        required: true
+        type: "string"
+        x-exportParamName: "SnoopId"
+      - name: "spy"
+        in: "query"
+        description: "Direction of audio to spy on"
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "Spy"
+        x-optionalDataType: "String"
+      - name: "whisper"
+        in: "query"
+        description: "Direction of audio to whisper into"
+        required: false
+        type: "string"
+        default: "none"
+        x-exportParamName: "Whisper"
+        x-optionalDataType: "String"
+      - name: "app"
+        in: "query"
+        description: "Application the snooping channel is placed into"
+        required: true
+        type: "string"
+        x-exportParamName: "App"
+      - name: "appArgs"
+        in: "query"
+        description: "The application arguments to pass to the Stasis application"
+        required: false
+        type: "string"
+        x-exportParamName: "AppArgs"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Channel"
+  /channels/{channelId}/variable:
+    get:
+      tags:
+      - "channels"
+      summary: "Get the value of a channel variable or function."
+      operationId: "getChannelVar"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "variable"
+        in: "query"
+        description: "The channel variable or function to get"
+        required: true
+        type: "string"
+        x-exportParamName: "Variable"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Variable"
+    post:
+      tags:
+      - "channels"
+      summary: "Set the value of a channel variable or function."
+      operationId: "setChannelVar"
+      parameters:
+      - name: "channelId"
+        in: "path"
+        description: "Channel's id"
+        required: true
+        type: "string"
+        x-exportParamName: "ChannelId"
+      - name: "variable"
+        in: "query"
+        description: "The channel variable or function to set"
+        required: true
+        type: "string"
+        x-exportParamName: "Variable"
+      - name: "value"
+        in: "query"
+        description: "The value to set the variable to"
+        required: false
+        type: "string"
+        x-exportParamName: "Value"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+  /deviceStates:
+    get:
+      tags:
+      - "deviceStates"
+      summary: "List all ARI controlled device states."
+      operationId: "listDeviceStates"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/DeviceState"
+  /deviceStates/{deviceName}:
+    get:
+      tags:
+      - "deviceStates"
+      summary: "Retrieve the current state of a device."
+      operationId: "getdevicestate"
+      parameters:
+      - name: "deviceName"
+        in: "path"
+        description: "Name of the device"
+        required: true
+        type: "string"
+        x-exportParamName: "DeviceName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/DeviceState"
+    put:
+      tags:
+      - "deviceStates"
+      summary: "Change the state of a device controlled by ARI. (Note - implicitly\
+        \ creates the device state)."
+      operationId: "update"
+      parameters:
+      - name: "deviceName"
+        in: "path"
+        description: "Name of the device"
+        required: true
+        type: "string"
+        x-exportParamName: "DeviceName"
+      - name: "deviceState"
+        in: "query"
+        description: "Device state value"
+        required: true
+        type: "string"
+        x-exportParamName: "DeviceState"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "deviceStates"
+      summary: "Destroy a device-state controlled by ARI."
+      operationId: "delete"
+      parameters:
+      - name: "deviceName"
+        in: "path"
+        description: "Name of the device"
+        required: true
+        type: "string"
+        x-exportParamName: "DeviceName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /endpoints:
+    get:
+      tags:
+      - "endpoints"
+      summary: "List all endpoints."
+      operationId: "listendpoints"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Endpoint"
+  /endpoints/sendMessage:
+    put:
+      tags:
+      - "endpoints"
+      summary: "Send a message to some technology URI or endpoint."
+      operationId: "sendMessage"
+      parameters:
+      - name: "to"
+        in: "query"
+        description: "The endpoint resource or technology specific URI to send the\
+          \ message to. Valid resources are sip, pjsip, and xmpp."
+        required: true
+        type: "string"
+        x-exportParamName: "To"
+      - name: "from"
+        in: "query"
+        description: "The endpoint resource or technology specific identity to send\
+          \ this message from. Valid resources are sip, pjsip, and xmpp."
+        required: true
+        type: "string"
+        x-exportParamName: "From"
+      - name: "body"
+        in: "query"
+        description: "The body of the message"
+        required: false
+        type: "string"
+        x-exportParamName: "Body"
+        x-optionalDataType: "String"
+      - in: "body"
+        name: "variables"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      responses:
+        "200":
+          description: "No response was specified"
+  /endpoints/{tech}:
+    get:
+      tags:
+      - "endpoints"
+      summary: "List available endoints for a given endpoint technology."
+      operationId: "listByTech"
+      parameters:
+      - name: "tech"
+        in: "path"
+        description: "Technology of the endpoints (sip,iax2,...)"
+        required: true
+        type: "string"
+        x-exportParamName: "Tech"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Endpoint"
+  /endpoints/{tech}/{resource}:
+    get:
+      tags:
+      - "endpoints"
+      summary: "Details for an endpoint."
+      operationId: "getendpoint"
+      parameters:
+      - name: "tech"
+        in: "path"
+        description: "Technology of the endpoint"
+        required: true
+        type: "string"
+        x-exportParamName: "Tech"
+      - name: "resource"
+        in: "path"
+        description: "ID of the endpoint"
+        required: true
+        type: "string"
+        x-exportParamName: "Resource"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Endpoint"
+  /endpoints/{tech}/{resource}/sendMessage:
+    put:
+      tags:
+      - "endpoints"
+      summary: "Send a message to some endpoint in a technology."
+      operationId: "sendMessageToEndpoint"
+      parameters:
+      - name: "tech"
+        in: "path"
+        description: "Technology of the endpoint"
+        required: true
+        type: "string"
+        x-exportParamName: "Tech"
+      - name: "resource"
+        in: "path"
+        description: "ID of the endpoint"
+        required: true
+        type: "string"
+        x-exportParamName: "Resource"
+      - name: "from"
+        in: "query"
+        description: "The endpoint resource or technology specific identity to send\
+          \ this message from. Valid resources are sip, pjsip, and xmpp."
+        required: true
+        type: "string"
+        x-exportParamName: "From"
+      - name: "body"
+        in: "query"
+        description: "The body of the message"
+        required: false
+        type: "string"
+        x-exportParamName: "Body"
+        x-optionalDataType: "String"
+      - in: "body"
+        name: "variables"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      responses:
+        "200":
+          description: "No response was specified"
+  /events:
+    get:
+      tags:
+      - "events"
+      summary: "WebSocket connection for events."
+      operationId: "eventWebsocket"
+      parameters:
+      - name: "app"
+        in: "query"
+        description: "Applications to subscribe to."
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "App"
+      - name: "subscribeAll"
+        in: "query"
+        description: "Subscribe to all Asterisk events. If provided, the applications\
+          \ listed will be subscribed to all events, effectively disabling the application\
+          \ specific subscriptions. Default is 'false'."
+        required: false
+        type: "boolean"
+        x-exportParamName: "SubscribeAll"
+        x-optionalDataType: "Bool"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Message"
+  /events/user/{eventName}:
+    post:
+      tags:
+      - "events"
+      summary: "Generate a user event."
+      operationId: "userEvent"
+      parameters:
+      - name: "eventName"
+        in: "path"
+        description: "Event name"
+        required: true
+        type: "string"
+        x-exportParamName: "EventName"
+      - name: "application"
+        in: "query"
+        description: "The name of the application that will receive this event"
+        required: true
+        type: "string"
+        x-exportParamName: "Application"
+      - name: "source"
+        in: "query"
+        description: "URI for event source (channel:{channelId}, bridge:{bridgeId},\
+          \ endpoint:{tech}/{resource}, deviceState:{deviceName}"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+        x-exportParamName: "Source"
+      - in: "body"
+        name: "variables"
+        description: "The \"variables\" key in the body object holds custom key/value\
+          \ pairs to add to the user event. Ex. { \"variables\": { \"key\": \"value\"\
+          \ } }"
+        required: false
+        schema:
+          $ref: "#/definitions/containers"
+        x-exportParamName: "Variables"
+      responses:
+        "200":
+          description: "No response was specified"
+  /mailboxes:
+    get:
+      tags:
+      - "mailboxes"
+      summary: "List all mailboxes."
+      operationId: "listmailboxes"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Mailbox"
+  /mailboxes/{mailboxName}:
+    get:
+      tags:
+      - "mailboxes"
+      summary: "Retrieve the current state of a mailbox."
+      operationId: "getmailbox"
+      parameters:
+      - name: "mailboxName"
+        in: "path"
+        description: "Name of the mailbox"
+        required: true
+        type: "string"
+        x-exportParamName: "MailboxName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Mailbox"
+    put:
+      tags:
+      - "mailboxes"
+      summary: "Change the state of a mailbox. (Note - implicitly creates the mailbox)."
+      operationId: "updatemailbox"
+      parameters:
+      - name: "mailboxName"
+        in: "path"
+        description: "Name of the mailbox"
+        required: true
+        type: "string"
+        x-exportParamName: "MailboxName"
+      - name: "oldMessages"
+        in: "query"
+        description: "Count of old messages in the mailbox"
+        required: true
+        type: "integer"
+        format: "int32"
+        x-exportParamName: "OldMessages"
+      - name: "newMessages"
+        in: "query"
+        description: "Count of new messages in the mailbox"
+        required: true
+        type: "integer"
+        format: "int32"
+        x-exportParamName: "NewMessages"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "mailboxes"
+      summary: "Destroy a mailbox."
+      operationId: "deletemailbox"
+      parameters:
+      - name: "mailboxName"
+        in: "path"
+        description: "Name of the mailbox"
+        required: true
+        type: "string"
+        x-exportParamName: "MailboxName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /playbacks/{playbackId}:
+    get:
+      tags:
+      - "playbacks"
+      summary: "Get a playback's details."
+      operationId: "getplayback"
+      parameters:
+      - name: "playbackId"
+        in: "path"
+        description: "Playback's id"
+        required: true
+        type: "string"
+        x-exportParamName: "PlaybackId"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Playback"
+    delete:
+      tags:
+      - "playbacks"
+      summary: "Stop a playback."
+      operationId: "stop"
+      parameters:
+      - name: "playbackId"
+        in: "path"
+        description: "Playback's id"
+        required: true
+        type: "string"
+        x-exportParamName: "PlaybackId"
+      responses:
+        "200":
+          description: "No response was specified"
+  /playbacks/{playbackId}/control:
+    post:
+      tags:
+      - "playbacks"
+      summary: "Control a playback."
+      operationId: "control"
+      parameters:
+      - name: "playbackId"
+        in: "path"
+        description: "Playback's id"
+        required: true
+        type: "string"
+        x-exportParamName: "PlaybackId"
+      - name: "operation"
+        in: "query"
+        description: "Operation to perform on the playback."
+        required: true
+        type: "string"
+        x-exportParamName: "Operation"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/live/{recordingName}:
+    get:
+      tags:
+      - "recordings"
+      summary: "List live recordings."
+      operationId: "getLive"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/LiveRecording"
+    delete:
+      tags:
+      - "recordings"
+      summary: "Stop a live recording and discard it."
+      operationId: "cancel"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/live/{recordingName}/mute:
+    post:
+      tags:
+      - "recordings"
+      summary: "Mute a live recording."
+      description: "Muting a recording suspends silence detection, which will be restarted\
+        \ when the recording is unmuted."
+      operationId: "muterecording"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "recordings"
+      summary: "Unmute a live recording."
+      operationId: "unmuterecording"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/live/{recordingName}/pause:
+    post:
+      tags:
+      - "recordings"
+      summary: "Pause a live recording."
+      description: "Pausing a recording suspends silence detection, which will be\
+        \ restarted when the recording is unpaused. Paused time is not included in\
+        \ the accounting for maxDurationSeconds."
+      operationId: "pause"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+    delete:
+      tags:
+      - "recordings"
+      summary: "Unpause a live recording."
+      operationId: "unpause"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/live/{recordingName}/stop:
+    post:
+      tags:
+      - "recordings"
+      summary: "Stop a live recording and store it."
+      operationId: "stoprecording"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/stored:
+    get:
+      tags:
+      - "recordings"
+      summary: "List recordings that are complete."
+      operationId: "listStored"
+      parameters: []
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/StoredRecording"
+  /recordings/stored/{recordingName}:
+    get:
+      tags:
+      - "recordings"
+      summary: "Get a stored recording's details."
+      operationId: "getStored"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/StoredRecording"
+    delete:
+      tags:
+      - "recordings"
+      summary: "Delete a stored recording."
+      operationId: "deleteStored"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+  /recordings/stored/{recordingName}/copy:
+    post:
+      tags:
+      - "recordings"
+      summary: "Copy a stored recording."
+      operationId: "copyStored"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording to copy"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      - name: "destinationRecordingName"
+        in: "query"
+        description: "The destination name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "DestinationRecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/StoredRecording"
+  /recordings/stored/{recordingName}/file:
+    get:
+      tags:
+      - "recordings"
+      summary: "Get the file associated with the stored recording."
+      operationId: "getStoredFile"
+      parameters:
+      - name: "recordingName"
+        in: "path"
+        description: "The name of the recording"
+        required: true
+        type: "string"
+        x-exportParamName: "RecordingName"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/binary"
+  /sounds:
+    get:
+      tags:
+      - "sounds"
+      summary: "List all sounds."
+      operationId: "listsounds"
+      parameters:
+      - name: "lang"
+        in: "query"
+        description: "Lookup sound for a specific language."
+        required: false
+        type: "string"
+        x-exportParamName: "Lang"
+        x-optionalDataType: "String"
+      - name: "format"
+        in: "query"
+        description: "Lookup sound in a specific format."
+        required: false
+        type: "string"
+        x-exportParamName: "Format"
+        x-optionalDataType: "String"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Sound"
+  /sounds/{soundId}:
+    get:
+      tags:
+      - "sounds"
+      summary: "Get a sound's details."
+      operationId: "getsound"
+      parameters:
+      - name: "soundId"
+        in: "path"
+        description: "Sound's id"
+        required: true
+        type: "string"
+        x-exportParamName: "SoundId"
+      responses:
+        "200":
+          description: "No response was specified"
+          schema:
+            $ref: "#/definitions/Sound"
+definitions:
+  containers:
+    description: "Container"
+  binary:
+    description: "Binary"
+  Application:
+    required:
+    - "bridge_ids"
+    - "channel_ids"
+    - "device_names"
+    - "endpoint_ids"
+    - "events_allowed"
+    - "events_disallowed"
+    - "name"
+    properties:
+      bridge_ids:
+        type: "array"
+        description: "Id's for bridges subscribed to."
+        items:
+          type: "string"
+      channel_ids:
+        type: "array"
+        description: "Id's for channels subscribed to."
+        items:
+          type: "string"
+      device_names:
+        type: "array"
+        description: "Names of the devices subscribed to."
+        items:
+          type: "string"
+      endpoint_ids:
+        type: "array"
+        description: "{tech}/{resource} for endpoints subscribed to."
+        items:
+          type: "string"
+      events_allowed:
+        type: "array"
+        description: "Event types sent to the application."
+        items:
+          type: "object"
+          properties: {}
+      events_disallowed:
+        type: "array"
+        description: "Event types not sent to the application."
+        items:
+          type: "object"
+          properties: {}
+      name:
+        type: "string"
+        description: "Name of this application"
+    description: "Details of a Stasis application"
+    example:
+      channel_ids:
+      - "channel_ids"
+      - "channel_ids"
+      events_allowed:
+      - "{}"
+      - "{}"
+      bridge_ids:
+      - "bridge_ids"
+      - "bridge_ids"
+      device_names:
+      - "device_names"
+      - "device_names"
+      name: "name"
+      endpoint_ids:
+      - "endpoint_ids"
+      - "endpoint_ids"
+      events_disallowed:
+      - "{}"
+      - "{}"
+  ApplicationMoveFailed:
+    allOf:
+    - required:
+      - "args"
+      - "channel"
+      - "destination"
+      properties:
+        args:
+          type: "array"
+          description: "Arguments to the application"
+          items:
+            type: "string"
+        channel:
+          $ref: "#/definitions/Channel"
+        destination:
+          type: "string"
+      description: "Notification that trying to move a channel to another Stasis application\
+        \ failed."
+    - $ref: "#/definitions/Event"
+  ApplicationReplaced:
+    allOf:
+    - description: "Notification that another WebSocket has taken over for an application.\n\
+        \nAn application may only be subscribed to by a single WebSocket at a time.\
+        \ If multiple WebSockets attempt to subscribe to the same application, the\
+        \ newer WebSocket wins, and the older one receives this event."
+    - $ref: "#/definitions/Event"
+  AsteriskInfo:
+    properties:
+      build:
+        description: "Info about how Asterisk was built"
+        $ref: "#/definitions/BuildInfo"
+      config:
+        description: "Info about Asterisk configuration"
+        $ref: "#/definitions/ConfigInfo"
+      status:
+        description: "Info about Asterisk status"
+        $ref: "#/definitions/StatusInfo"
+      system:
+        description: "Info about the system running Asterisk"
+        $ref: "#/definitions/SystemInfo"
+    description: "Asterisk system information"
+    example:
+      system:
+        entity_id: "entity_id"
+        version: "version"
+      build:
+        date: "date"
+        os: "os"
+        kernel: "kernel"
+        machine: "machine"
+        options: "options"
+        user: "user"
+      config:
+        name: "name"
+        setid:
+          user: "user"
+          group: "group"
+        max_channels: 0
+        default_language: "default_language"
+        max_open_files: 1
+        max_load: 6.027456183070403
+      status:
+        startup_time: "2000-01-23"
+        last_reload_time: "2000-01-23"
+  AsteriskPing:
+    required:
+    - "asterisk_id"
+    - "ping"
+    - "timestamp"
+    properties:
+      asterisk_id:
+        type: "string"
+        description: "Asterisk id info"
+      ping:
+        type: "string"
+        description: "Always string value is pong"
+      timestamp:
+        type: "string"
+        description: "The timestamp string of request received time"
+    description: "Asterisk ping information"
+    example:
+      asterisk_id: "asterisk_id"
+      ping: "ping"
+      timestamp: "timestamp"
+  Bridge:
+    required:
+    - "bridge_class"
+    - "bridge_type"
+    - "channels"
+    - "creationtime"
+    - "creator"
+    - "id"
+    - "name"
+    - "technology"
+    properties:
+      bridge_class:
+        type: "string"
+        description: "Bridging class"
+      bridge_type:
+        type: "string"
+        description: "Type of bridge technology"
+      channels:
+        type: "array"
+        description: "Ids of channels participating in this bridge"
+        items:
+          type: "string"
+      creationtime:
+        type: "string"
+        format: "date"
+        description: "Timestamp when bridge was created"
+      creator:
+        type: "string"
+        description: "Entity that created the bridge"
+      id:
+        type: "string"
+        description: "Unique identifier for this bridge"
+      name:
+        type: "string"
+        description: "Name the creator gave the bridge"
+      technology:
+        type: "string"
+        description: "Name of the current bridging technology"
+      video_mode:
+        type: "string"
+        description: "The video mode the bridge is using. One of 'none', 'talker',\
+          \ or 'single'."
+      video_source_id:
+        type: "string"
+        description: "The ID of the channel that is the source of video in this bridge,\
+          \ if one exists."
+    description: "The merging of media from one or more channels.\n\nEveryone on the\
+      \ bridge receives the same audio."
+    example:
+      creator: "creator"
+      bridge_type: "bridge_type"
+      channels:
+      - "channels"
+      - "channels"
+      video_source_id: "video_source_id"
+      bridge_class: "bridge_class"
+      name: "name"
+      video_mode: "video_mode"
+      creationtime: "2000-01-23"
+      id: "id"
+      technology: "technology"
+  BridgeAttendedTransfer:
+    allOf:
+    - required:
+      - "destination_type"
+      - "is_external"
+      - "result"
+      - "transferer_first_leg"
+      - "transferer_second_leg"
+      properties:
+        destination_application:
+          type: "string"
+          description: "Application that has been transferred into"
+        destination_bridge:
+          type: "string"
+          description: "Bridge that survived the merge result"
+        destination_link_first_leg:
+          description: "First leg of a link transfer result"
+          $ref: "#/definitions/Channel"
+        destination_link_second_leg:
+          description: "Second leg of a link transfer result"
+          $ref: "#/definitions/Channel"
+        destination_threeway_bridge:
+          description: "Bridge that survived the threeway result"
+          $ref: "#/definitions/Bridge"
+        destination_threeway_channel:
+          description: "Transferer channel that survived the threeway result"
+          $ref: "#/definitions/Channel"
+        destination_type:
+          type: "string"
+          description: "How the transfer was accomplished"
+        is_external:
+          type: "boolean"
+          description: "Whether the transfer was externally initiated or not"
+        replace_channel:
+          description: "The channel that is replacing transferer_first_leg in the\
+            \ swap"
+          $ref: "#/definitions/Channel"
+        result:
+          type: "string"
+          description: "The result of the transfer attempt"
+        transfer_target:
+          description: "The channel that is being transferred to"
+          $ref: "#/definitions/Channel"
+        transferee:
+          description: "The channel that is being transferred"
+          $ref: "#/definitions/Channel"
+        transferer_first_leg:
+          description: "First leg of the transferer"
+          $ref: "#/definitions/Channel"
+        transferer_first_leg_bridge:
+          description: "Bridge the transferer first leg is in"
+          $ref: "#/definitions/Bridge"
+        transferer_second_leg:
+          description: "Second leg of the transferer"
+          $ref: "#/definitions/Channel"
+        transferer_second_leg_bridge:
+          description: "Bridge the transferer second leg is in"
+          $ref: "#/definitions/Bridge"
+      description: "Notification that an attended transfer has occurred."
+    - $ref: "#/definitions/Event"
+  BridgeBlindTransfer:
+    allOf:
+    - required:
+      - "channel"
+      - "context"
+      - "exten"
+      - "is_external"
+      - "result"
+      properties:
+        bridge:
+          description: "The bridge being transferred"
+          $ref: "#/definitions/Bridge"
+        channel:
+          description: "The channel performing the blind transfer"
+          $ref: "#/definitions/Channel"
+        context:
+          type: "string"
+          description: "The context transferred to"
+        exten:
+          type: "string"
+          description: "The extension transferred to"
+        is_external:
+          type: "boolean"
+          description: "Whether the transfer was externally initiated or not"
+        replace_channel:
+          description: "The channel that is replacing transferer when the transferee(s)\
+            \ can not be transferred directly"
+          $ref: "#/definitions/Channel"
+        result:
+          type: "string"
+          description: "The result of the transfer attempt"
+        transferee:
+          description: "The channel that is being transferred"
+          $ref: "#/definitions/Channel"
+      description: "Notification that a blind transfer has occurred."
+    - $ref: "#/definitions/Event"
+  BridgeCreated:
+    allOf:
+    - required:
+      - "bridge"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+      description: "Notification that a bridge has been created."
+    - $ref: "#/definitions/Event"
+  BridgeDestroyed:
+    allOf:
+    - required:
+      - "bridge"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+      description: "Notification that a bridge has been destroyed."
+    - $ref: "#/definitions/Event"
+  BridgeMerged:
+    allOf:
+    - required:
+      - "bridge"
+      - "bridge_from"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+        bridge_from:
+          $ref: "#/definitions/Bridge"
+      description: "Notification that one bridge has merged into another."
+    - $ref: "#/definitions/Event"
+  BridgeVideoSourceChanged:
+    allOf:
+    - required:
+      - "bridge"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+        old_video_source_id:
+          type: "string"
+      description: "Notification that the source of video in a bridge has changed."
+    - $ref: "#/definitions/Event"
+  BuildInfo:
+    required:
+    - "date"
+    - "kernel"
+    - "machine"
+    - "options"
+    - "os"
+    - "user"
+    properties:
+      date:
+        type: "string"
+        description: "Date and time when Asterisk was built."
+      kernel:
+        type: "string"
+        description: "Kernel version Asterisk was built on."
+      machine:
+        type: "string"
+        description: "Machine architecture (x86_64, i686, ppc, etc.)"
+      options:
+        type: "string"
+        description: "Compile time options, or empty string if default."
+      os:
+        type: "string"
+        description: "OS Asterisk was built on."
+      user:
+        type: "string"
+        description: "Username that build Asterisk"
+    description: "Info about how Asterisk was built"
+    example:
+      date: "date"
+      os: "os"
+      kernel: "kernel"
+      machine: "machine"
+      options: "options"
+      user: "user"
+  CallerID:
+    required:
+    - "name"
+    - "number"
+    properties:
+      name:
+        type: "string"
+      number:
+        type: "string"
+    description: "Caller identification"
+    example:
+      number: "number"
+      name: "name"
+  Channel:
+    required:
+    - "accountcode"
+    - "caller"
+    - "connected"
+    - "creationtime"
+    - "dialplan"
+    - "id"
+    - "language"
+    - "name"
+    - "state"
+    properties:
+      accountcode:
+        type: "string"
+      caller:
+        $ref: "#/definitions/CallerID"
+      channelvars:
+        type: "object"
+        description: "Channel variables"
+        properties: {}
+      connected:
+        $ref: "#/definitions/CallerID"
+      creationtime:
+        type: "string"
+        format: "date"
+        description: "Timestamp when channel was created"
+      dialplan:
+        description: "Current location in the dialplan"
+        $ref: "#/definitions/DialplanCEP"
+      id:
+        type: "string"
+        description: "Unique identifier of the channel.\n\nThis is the same as the\
+          \ Uniqueid field in AMI."
+      language:
+        type: "string"
+        description: "The default spoken language"
+      name:
+        type: "string"
+        description: "Name of the channel (i.e. SIP/foo-0000a7e3)"
+      state:
+        type: "string"
+    description: "A specific communication connection between Asterisk and an Endpoint."
+    example:
+      connected:
+        number: "number"
+        name: "name"
+      caller:
+        number: "number"
+        name: "name"
+      name: "name"
+      channelvars: "{}"
+      dialplan:
+        app_name: "app_name"
+        context: "context"
+        app_data: "app_data"
+        priority: 0
+        exten: "exten"
+      language: "language"
+      creationtime: "2000-01-23"
+      id: "id"
+      state: "state"
+      accountcode: "accountcode"
+  ChannelCallerId:
+    allOf:
+    - required:
+      - "caller_presentation"
+      - "caller_presentation_txt"
+      - "channel"
+      properties:
+        caller_presentation:
+          type: "integer"
+          format: "int32"
+          description: "The integer representation of the Caller Presentation value."
+        caller_presentation_txt:
+          type: "string"
+          description: "The text representation of the Caller Presentation value."
+        channel:
+          description: "The channel that changed Caller ID."
+          $ref: "#/definitions/Channel"
+      description: "Channel changed Caller ID."
+    - $ref: "#/definitions/Event"
+  ChannelConnectedLine:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          description: "The channel whose connected line has changed."
+          $ref: "#/definitions/Channel"
+      description: "Channel changed Connected Line."
+    - $ref: "#/definitions/Event"
+  ChannelCreated:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has been created."
+    - $ref: "#/definitions/Event"
+  ChannelDestroyed:
+    allOf:
+    - required:
+      - "cause"
+      - "cause_txt"
+      - "channel"
+      properties:
+        cause:
+          type: "integer"
+          format: "int32"
+          description: "Integer representation of the cause of the hangup"
+        cause_txt:
+          type: "string"
+          description: "Text representation of the cause of the hangup"
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has been destroyed."
+    - $ref: "#/definitions/Event"
+  ChannelDialplan:
+    allOf:
+    - required:
+      - "channel"
+      - "dialplan_app"
+      - "dialplan_app_data"
+      properties:
+        channel:
+          description: "The channel that changed dialplan location."
+          $ref: "#/definitions/Channel"
+        dialplan_app:
+          type: "string"
+          description: "The application about to be executed."
+        dialplan_app_data:
+          type: "string"
+          description: "The data to be passed to the application."
+      description: "Channel changed location in the dialplan."
+    - $ref: "#/definitions/Event"
+  ChannelDtmfReceived:
+    allOf:
+    - required:
+      - "channel"
+      - "digit"
+      - "duration_ms"
+      properties:
+        channel:
+          description: "The channel on which DTMF was received"
+          $ref: "#/definitions/Channel"
+        digit:
+          type: "string"
+          description: "DTMF digit received (0-9, A-E, # or *)"
+        duration_ms:
+          type: "integer"
+          format: "int32"
+          description: "Number of milliseconds DTMF was received"
+      description: "DTMF received on a channel.\n\nThis event is sent when the DTMF\
+        \ ends. There is no notification about the start of DTMF"
+    - $ref: "#/definitions/Event"
+  ChannelEnteredBridge:
+    allOf:
+    - required:
+      - "bridge"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has entered a bridge."
+    - $ref: "#/definitions/Event"
+  ChannelHangupRequest:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        cause:
+          type: "integer"
+          format: "int32"
+          description: "Integer representation of the cause of the hangup."
+        channel:
+          description: "The channel on which the hangup was requested."
+          $ref: "#/definitions/Channel"
+        soft:
+          type: "boolean"
+          description: "Whether the hangup request was a soft hangup request."
+      description: "A hangup was requested on the channel."
+    - $ref: "#/definitions/Event"
+  ChannelHold:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          description: "The channel that initiated the hold event."
+          $ref: "#/definitions/Channel"
+        musicclass:
+          type: "string"
+          description: "The music on hold class that the initiator requested."
+      description: "A channel initiated a media hold."
+    - $ref: "#/definitions/Event"
+  ChannelLeftBridge:
+    allOf:
+    - required:
+      - "bridge"
+      - "channel"
+      properties:
+        bridge:
+          $ref: "#/definitions/Bridge"
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has left a bridge."
+    - $ref: "#/definitions/Event"
+  ChannelStateChange:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification of a channel's state change."
+    - $ref: "#/definitions/Event"
+  ChannelTalkingFinished:
+    allOf:
+    - required:
+      - "channel"
+      - "duration"
+      properties:
+        channel:
+          description: "The channel on which talking completed."
+          $ref: "#/definitions/Channel"
+        duration:
+          type: "integer"
+          format: "int32"
+          description: "The length of time, in milliseconds, that talking was detected\
+            \ on the channel"
+      description: "Talking is no longer detected on the channel."
+    - $ref: "#/definitions/Event"
+  ChannelTalkingStarted:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          description: "The channel on which talking started."
+          $ref: "#/definitions/Channel"
+      description: "Talking was detected on the channel."
+    - $ref: "#/definitions/Event"
+  ChannelUnhold:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          description: "The channel that initiated the unhold event."
+          $ref: "#/definitions/Channel"
+      description: "A channel initiated a media unhold."
+    - $ref: "#/definitions/Event"
+  ChannelUserevent:
+    allOf:
+    - required:
+      - "eventname"
+      - "userevent"
+      properties:
+        bridge:
+          description: "A bridge that is signaled with the user event."
+          $ref: "#/definitions/Bridge"
+        channel:
+          description: "A channel that is signaled with the user event."
+          $ref: "#/definitions/Channel"
+        endpoint:
+          description: "A endpoint that is signaled with the user event."
+          $ref: "#/definitions/Endpoint"
+        eventname:
+          type: "string"
+          description: "The name of the user event."
+        userevent:
+          type: "object"
+          description: "Custom Userevent data"
+          properties: {}
+      description: "User-generated event with additional user-defined fields in the\
+        \ object."
+    - $ref: "#/definitions/Event"
+  ChannelVarset:
+    allOf:
+    - required:
+      - "value"
+      - "variable"
+      properties:
+        channel:
+          description: "The channel on which the variable was set.\n\nIf missing,\
+            \ the variable is a global variable."
+          $ref: "#/definitions/Channel"
+        value:
+          type: "string"
+          description: "The new value of the variable."
+        variable:
+          type: "string"
+          description: "The variable that changed."
+      description: "Channel variable changed."
+    - $ref: "#/definitions/Event"
+  ConfigInfo:
+    required:
+    - "default_language"
+    - "name"
+    - "setid"
+    properties:
+      default_language:
+        type: "string"
+        description: "Default language for media playback."
+      max_channels:
+        type: "integer"
+        format: "int32"
+        description: "Maximum number of simultaneous channels."
+      max_load:
+        type: "number"
+        format: "double"
+        description: "Maximum load avg on system."
+      max_open_files:
+        type: "integer"
+        format: "int32"
+        description: "Maximum number of open file handles (files, sockets)."
+      name:
+        type: "string"
+        description: "Asterisk system name."
+      setid:
+        description: "Effective user/group id for running Asterisk."
+        $ref: "#/definitions/SetId"
+    description: "Info about Asterisk configuration"
+    example:
+      name: "name"
+      setid:
+        user: "user"
+        group: "group"
+      max_channels: 0
+      default_language: "default_language"
+      max_open_files: 1
+      max_load: 6.027456183070403
+  ConfigTuple:
+    required:
+    - "attribute"
+    - "value"
+    properties:
+      attribute:
+        type: "string"
+        description: "A configuration object attribute."
+      value:
+        type: "string"
+        description: "The value for the attribute."
+    description: "A key/value pair that makes up part of a configuration object."
+    example:
+      attribute: "attribute"
+      value: "value"
+  ContactInfo:
+    required:
+    - "aor"
+    - "contact_status"
+    - "uri"
+    properties:
+      aor:
+        type: "string"
+        description: "The Address of Record this contact belongs to."
+      contact_status:
+        type: "string"
+        description: "The current status of the contact."
+      roundtrip_usec:
+        type: "string"
+        description: "Current round trip time, in microseconds, for the contact."
+      uri:
+        type: "string"
+        description: "The location of the contact."
+    description: "Detailed information about a contact on an endpoint."
+  ContactStatusChange:
+    allOf:
+    - required:
+      - "contact_info"
+      - "endpoint"
+      properties:
+        contact_info:
+          $ref: "#/definitions/ContactInfo"
+        endpoint:
+          $ref: "#/definitions/Endpoint"
+      description: "The state of a contact on an endpoint has changed."
+    - $ref: "#/definitions/Event"
+  DeviceState:
+    required:
+    - "name"
+    - "state"
+    properties:
+      name:
+        type: "string"
+        description: "Name of the device."
+      state:
+        type: "string"
+        description: "Device's state"
+    description: "Represents the state of a device."
+    example:
+      name: "name"
+      state: "state"
+  DeviceStateChanged:
+    allOf:
+    - required:
+      - "device_state"
+      properties:
+        device_state:
+          description: "Device state object"
+          $ref: "#/definitions/DeviceState"
+      description: "Notification that a device state has changed."
+    - $ref: "#/definitions/Event"
+  Dial:
+    allOf:
+    - required:
+      - "dialstatus"
+      - "peer"
+      properties:
+        caller:
+          description: "The calling channel."
+          $ref: "#/definitions/Channel"
+        dialstatus:
+          type: "string"
+          description: "Current status of the dialing attempt to the peer."
+        dialstring:
+          type: "string"
+          description: "The dial string for calling the peer channel."
+        forward:
+          type: "string"
+          description: "Forwarding target requested by the original dialed channel."
+        forwarded:
+          description: "Channel that the caller has been forwarded to."
+          $ref: "#/definitions/Channel"
+        peer:
+          description: "The dialed channel."
+          $ref: "#/definitions/Channel"
+      description: "Dialing state has changed."
+    - $ref: "#/definitions/Event"
+  Dialed:
+    description: "Dialed channel information."
+  DialplanCEP:
+    required:
+    - "app_data"
+    - "app_name"
+    - "context"
+    - "exten"
+    - "priority"
+    properties:
+      app_data:
+        type: "string"
+        description: "Parameter of current dialplan application"
+      app_name:
+        type: "string"
+        description: "Name of current dialplan application"
+      context:
+        type: "string"
+        description: "Context in the dialplan"
+      exten:
+        type: "string"
+        description: "Extension in the dialplan"
+      priority:
+        type: "integer"
+        format: "int64"
+        description: "Priority in the dialplan"
+    description: "Dialplan location (context/extension/priority)"
+    example:
+      app_name: "app_name"
+      context: "context"
+      app_data: "app_data"
+      priority: 0
+      exten: "exten"
+  Endpoint:
+    required:
+    - "channel_ids"
+    - "resource"
+    - "technology"
+    properties:
+      channel_ids:
+        type: "array"
+        description: "Id's of channels associated with this endpoint"
+        items:
+          type: "string"
+      resource:
+        type: "string"
+        description: "Identifier of the endpoint, specific to the given technology."
+      state:
+        type: "string"
+        description: "Endpoint's state"
+      technology:
+        type: "string"
+        description: "Technology of the endpoint"
+    description: "An external device that may offer/accept calls to/from Asterisk.\n\
+      \nUnlike most resources, which have a single unique identifier, an endpoint\
+      \ is uniquely identified by the technology/resource pair."
+    example:
+      channel_ids:
+      - "channel_ids"
+      - "channel_ids"
+      resource: "resource"
+      state: "state"
+      technology: "technology"
+  EndpointStateChange:
+    allOf:
+    - required:
+      - "endpoint"
+      properties:
+        endpoint:
+          $ref: "#/definitions/Endpoint"
+      description: "Endpoint state changed."
+    - $ref: "#/definitions/Event"
+  Event:
+    allOf:
+    - required:
+      - "application"
+      - "timestamp"
+      properties:
+        application:
+          type: "string"
+          description: "Name of the application receiving the event."
+        timestamp:
+          type: "string"
+          format: "date"
+          description: "Time at which this event was created."
+      description: "Base type for asynchronous events from Asterisk."
+    - $ref: "#/definitions/Message"
+  FormatLangPair:
+    required:
+    - "format"
+    - "language"
+    properties:
+      format:
+        type: "string"
+      language:
+        type: "string"
+    description: "Identifies the format and language of a sound file"
+    example:
+      format: "format"
+      language: "language"
+  LiveRecording:
+    required:
+    - "format"
+    - "name"
+    - "state"
+    - "target_uri"
+    properties:
+      cause:
+        type: "string"
+        description: "Cause for recording failure if failed"
+      duration:
+        type: "integer"
+        format: "int32"
+        description: "Duration in seconds of the recording"
+      format:
+        type: "string"
+        description: "Recording format (wav, gsm, etc.)"
+      name:
+        type: "string"
+        description: "Base name for the recording"
+      silence_duration:
+        type: "integer"
+        format: "int32"
+        description: "Duration of silence, in seconds, detected in the recording.\
+          \ This is only available if the recording was initiated with a non-zero\
+          \ maxSilenceSeconds."
+      state:
+        type: "string"
+      talking_duration:
+        type: "integer"
+        format: "int32"
+        description: "Duration of talking, in seconds, detected in the recording.\
+          \ This is only available if the recording was initiated with a non-zero\
+          \ maxSilenceSeconds."
+      target_uri:
+        type: "string"
+        description: "URI for the channel or bridge being recorded"
+    description: "A recording that is in progress"
+    example:
+      duration: 0
+      silence_duration: 6
+      talking_duration: 1
+      format: "format"
+      name: "name"
+      target_uri: "target_uri"
+      cause: "cause"
+      state: "state"
+  LogChannel:
+    required:
+    - "channel"
+    - "configuration"
+    - "status"
+    - "type"
+    properties:
+      channel:
+        type: "string"
+        description: "The log channel path"
+      configuration:
+        type: "string"
+        description: "The various log levels"
+      status:
+        type: "string"
+        description: "Whether or not a log type is enabled"
+      type:
+        type: "string"
+        description: "Types of logs for the log channel"
+    description: "Details of an Asterisk log channel"
+    example:
+      configuration: "configuration"
+      channel: "channel"
+      type: "type"
+      status: "status"
+  Mailbox:
+    required:
+    - "name"
+    - "new_messages"
+    - "old_messages"
+    properties:
+      name:
+        type: "string"
+        description: "Name of the mailbox."
+      new_messages:
+        type: "integer"
+        format: "int32"
+        description: "Count of new messages in the mailbox."
+      old_messages:
+        type: "integer"
+        format: "int32"
+        description: "Count of old messages in the mailbox."
+    description: "Represents the state of a mailbox."
+    example:
+      new_messages: 0
+      name: "name"
+      old_messages: 6
+  Message:
+    required:
+    - "type"
+    discriminator: "type"
+    properties:
+      asterisk_id:
+        type: "string"
+        description: "The unique ID for the Asterisk instance that raised this event."
+      type:
+        type: "string"
+        description: "Indicates the type of this message."
+    description: "Base type for errors and events"
+    example:
+      asterisk_id: "asterisk_id"
+      type: "type"
+  MissingParams:
+    allOf:
+    - required:
+      - "params"
+      properties:
+        params:
+          type: "array"
+          description: "A list of the missing parameters"
+          items:
+            type: "string"
+      description: "Error event sent when required params are missing."
+    - $ref: "#/definitions/Message"
+  Module:
+    required:
+    - "description"
+    - "name"
+    - "status"
+    - "support_level"
+    - "use_count"
+    properties:
+      description:
+        type: "string"
+        description: "The description of this module"
+      name:
+        type: "string"
+        description: "The name of this module"
+      status:
+        type: "string"
+        description: "The running status of this module"
+      support_level:
+        type: "string"
+        description: "The support state of this module"
+      use_count:
+        type: "integer"
+        format: "int32"
+        description: "The number of times this module is being used"
+    description: "Details of an Asterisk module"
+    example:
+      use_count: 0
+      name: "name"
+      description: "description"
+      support_level: "support_level"
+      status: "status"
+  Peer:
+    required:
+    - "peer_status"
+    properties:
+      address:
+        type: "string"
+        description: "The IP address of the peer."
+      cause:
+        type: "string"
+        description: "An optional reason associated with the change in peer_status."
+      peer_status:
+        type: "string"
+        description: "The current state of the peer. Note that the values of the status\
+          \ are dependent on the underlying peer technology."
+      port:
+        type: "string"
+        description: "The port of the peer."
+      time:
+        type: "string"
+        description: "The last known time the peer was contacted."
+    description: "Detailed information about a remote peer that communicates with\
+      \ Asterisk."
+  PeerStatusChange:
+    allOf:
+    - required:
+      - "endpoint"
+      - "peer"
+      properties:
+        endpoint:
+          $ref: "#/definitions/Endpoint"
+        peer:
+          $ref: "#/definitions/Peer"
+      description: "The state of a peer associated with an endpoint has changed."
+    - $ref: "#/definitions/Event"
+  Playback:
+    required:
+    - "id"
+    - "media_uri"
+    - "state"
+    - "target_uri"
+    properties:
+      id:
+        type: "string"
+        description: "ID for this playback operation"
+      language:
+        type: "string"
+        description: "For media types that support multiple languages, the language\
+          \ requested for playback."
+      media_uri:
+        type: "string"
+        description: "The URI for the media currently being played back."
+      next_media_uri:
+        type: "string"
+        description: "If a list of URIs is being played, the next media URI to be\
+          \ played back."
+      state:
+        type: "string"
+        description: "Current state of the playback operation."
+      target_uri:
+        type: "string"
+        description: "URI for the channel or bridge to play the media on"
+    description: "Object representing the playback of media to a channel"
+    example:
+      media_uri: "media_uri"
+      target_uri: "target_uri"
+      language: "language"
+      next_media_uri: "next_media_uri"
+      id: "id"
+      state: "state"
+  PlaybackContinuing:
+    allOf:
+    - required:
+      - "playback"
+      properties:
+        playback:
+          description: "Playback control object"
+          $ref: "#/definitions/Playback"
+      description: "Event showing the continuation of a media playback operation from\
+        \ one media URI to the next in the list."
+    - $ref: "#/definitions/Event"
+  PlaybackFinished:
+    allOf:
+    - required:
+      - "playback"
+      properties:
+        playback:
+          description: "Playback control object"
+          $ref: "#/definitions/Playback"
+      description: "Event showing the completion of a media playback operation."
+    - $ref: "#/definitions/Event"
+  PlaybackStarted:
+    allOf:
+    - required:
+      - "playback"
+      properties:
+        playback:
+          description: "Playback control object"
+          $ref: "#/definitions/Playback"
+      description: "Event showing the start of a media playback operation."
+    - $ref: "#/definitions/Event"
+  RTPstat:
+    required:
+    - "channel_uniqueid"
+    - "local_ssrc"
+    - "remote_ssrc"
+    - "rxcount"
+    - "rxoctetcount"
+    - "rxploss"
+    - "txcount"
+    - "txoctetcount"
+    - "txploss"
+    properties:
+      channel_uniqueid:
+        type: "string"
+        description: "The Asterisk channel's unique ID that owns this instance."
+      local_maxjitter:
+        type: "number"
+        format: "double"
+        description: "Maximum jitter on local side."
+      local_maxrxploss:
+        type: "number"
+        format: "double"
+        description: "Maximum number of packets lost on local side."
+      local_minjitter:
+        type: "number"
+        format: "double"
+        description: "Minimum jitter on local side."
+      local_minrxploss:
+        type: "number"
+        format: "double"
+        description: "Minimum number of packets lost on local side."
+      local_normdevjitter:
+        type: "number"
+        format: "double"
+        description: "Average jitter on local side."
+      local_normdevrxploss:
+        type: "number"
+        format: "double"
+        description: "Average number of packets lost on local side."
+      local_ssrc:
+        type: "integer"
+        format: "int32"
+        description: "Our SSRC."
+      local_stdevjitter:
+        type: "number"
+        format: "double"
+        description: "Standard deviation jitter on local side."
+      local_stdevrxploss:
+        type: "number"
+        format: "double"
+        description: "Standard deviation packets lost on local side."
+      maxrtt:
+        type: "number"
+        format: "double"
+        description: "Maximum round trip time."
+      minrtt:
+        type: "number"
+        format: "double"
+        description: "Minimum round trip time."
+      normdevrtt:
+        type: "number"
+        format: "double"
+        description: "Average round trip time."
+      remote_maxjitter:
+        type: "number"
+        format: "double"
+        description: "Maximum jitter on remote side."
+      remote_maxrxploss:
+        type: "number"
+        format: "double"
+        description: "Maximum number of packets lost on remote side."
+      remote_minjitter:
+        type: "number"
+        format: "double"
+        description: "Minimum jitter on remote side."
+      remote_minrxploss:
+        type: "number"
+        format: "double"
+        description: "Minimum number of packets lost on remote side."
+      remote_normdevjitter:
+        type: "number"
+        format: "double"
+        description: "Average jitter on remote side."
+      remote_normdevrxploss:
+        type: "number"
+        format: "double"
+        description: "Average number of packets lost on remote side."
+      remote_ssrc:
+        type: "integer"
+        format: "int32"
+        description: "Their SSRC."
+      remote_stdevjitter:
+        type: "number"
+        format: "double"
+        description: "Standard deviation jitter on remote side."
+      remote_stdevrxploss:
+        type: "number"
+        format: "double"
+        description: "Standard deviation packets lost on remote side."
+      rtt:
+        type: "number"
+        format: "double"
+        description: "Total round trip time."
+      rxcount:
+        type: "integer"
+        format: "int32"
+        description: "Number of packets received."
+      rxjitter:
+        type: "number"
+        format: "double"
+        description: "Jitter on received packets."
+      rxoctetcount:
+        type: "integer"
+        format: "int32"
+        description: "Number of octets received."
+      rxploss:
+        type: "integer"
+        format: "int32"
+        description: "Number of received packets lost."
+      stdevrtt:
+        type: "number"
+        format: "double"
+        description: "Standard deviation round trip time."
+      txcount:
+        type: "integer"
+        format: "int32"
+        description: "Number of packets transmitted."
+      txjitter:
+        type: "number"
+        format: "double"
+        description: "Jitter on transmitted packets."
+      txoctetcount:
+        type: "integer"
+        format: "int32"
+        description: "Number of octets transmitted."
+      txploss:
+        type: "integer"
+        format: "int32"
+        description: "Number of transmitted packets lost."
+    description: "A statistics of a RTP."
+    example:
+      maxrtt: 2.027123023002322
+      remote_maxrxploss: 1.0246457001441578
+      local_normdevrxploss: 2.3021358869347655
+      remote_minrxploss: 6.84685269835264
+      local_normdevjitter: 5.637376656633329
+      normdevrtt: 7.386281948385884
+      remote_normdevjitter: 7.457744773683766
+      local_stdevrxploss: 3.616076749251911
+      remote_stdevrxploss: 9.965781217890562
+      local_maxjitter: 0.8008281904610115
+      remote_minjitter: 1.4894159098541704
+      local_ssrc: 7
+      local_minjitter: 1.4658129805029452
+      minrtt: 4.145608029883936
+      txoctetcount: 2
+      remote_normdevrxploss: 1.1730742509559433
+      remote_ssrc: 4
+      rxjitter: 8.762042012749001
+      txjitter: 1.284659006116532
+      rxploss: 6
+      local_minrxploss: 5.962133916683182
+      remote_maxjitter: 1.2315135367772556
+      remote_stdevjitter: 5.025004791520295
+      channel_uniqueid: "channel_uniqueid"
+      local_maxrxploss: 6.027456183070403
+      rtt: 9.369310271410669
+      rxoctetcount: 9
+      txcount: 6
+      local_stdevjitter: 9.301444243932576
+      rxcount: 6
+      txploss: 6
+      stdevrtt: 3.5571952270680973
+  RecordingFailed:
+    allOf:
+    - required:
+      - "recording"
+      properties:
+        recording:
+          description: "Recording control object"
+          $ref: "#/definitions/LiveRecording"
+      description: "Event showing failure of a recording operation."
+    - $ref: "#/definitions/Event"
+  RecordingFinished:
+    allOf:
+    - required:
+      - "recording"
+      properties:
+        recording:
+          description: "Recording control object"
+          $ref: "#/definitions/LiveRecording"
+      description: "Event showing the completion of a recording operation."
+    - $ref: "#/definitions/Event"
+  RecordingStarted:
+    allOf:
+    - required:
+      - "recording"
+      properties:
+        recording:
+          description: "Recording control object"
+          $ref: "#/definitions/LiveRecording"
+      description: "Event showing the start of a recording operation."
+    - $ref: "#/definitions/Event"
+  SetId:
+    required:
+    - "group"
+    - "user"
+    properties:
+      group:
+        type: "string"
+        description: "Effective group id."
+      user:
+        type: "string"
+        description: "Effective user id."
+    description: "Effective user/group id"
+    example:
+      user: "user"
+      group: "group"
+  Sound:
+    required:
+    - "formats"
+    - "id"
+    properties:
+      formats:
+        type: "array"
+        description: "The formats and languages in which this sound is available."
+        items:
+          $ref: "#/definitions/FormatLangPair"
+      id:
+        type: "string"
+        description: "Sound's identifier."
+      text:
+        type: "string"
+        description: "Text description of the sound, usually the words spoken."
+    description: "A media file that may be played back."
+    example:
+      formats:
+      - format: "format"
+        language: "language"
+      - format: "format"
+        language: "language"
+      id: "id"
+      text: "text"
+  StasisEnd:
+    allOf:
+    - required:
+      - "channel"
+      properties:
+        channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has left a Stasis application."
+    - $ref: "#/definitions/Event"
+  StasisStart:
+    allOf:
+    - required:
+      - "args"
+      - "channel"
+      properties:
+        args:
+          type: "array"
+          description: "Arguments to the application"
+          items:
+            type: "string"
+        channel:
+          $ref: "#/definitions/Channel"
+        replace_channel:
+          $ref: "#/definitions/Channel"
+      description: "Notification that a channel has entered a Stasis application."
+    - $ref: "#/definitions/Event"
+  StatusInfo:
+    required:
+    - "last_reload_time"
+    - "startup_time"
+    properties:
+      last_reload_time:
+        type: "string"
+        format: "date"
+        description: "Time when Asterisk was last reloaded."
+      startup_time:
+        type: "string"
+        format: "date"
+        description: "Time when Asterisk was started."
+    description: "Info about Asterisk status"
+    example:
+      startup_time: "2000-01-23"
+      last_reload_time: "2000-01-23"
+  StoredRecording:
+    required:
+    - "format"
+    - "name"
+    properties:
+      format:
+        type: "string"
+      name:
+        type: "string"
+    description: "A past recording that may be played back."
+    example:
+      format: "format"
+      name: "name"
+  SystemInfo:
+    required:
+    - "entity_id"
+    - "version"
+    properties:
+      entity_id:
+        type: "string"
+      version:
+        type: "string"
+        description: "Asterisk version."
+    description: "Info about Asterisk"
+    example:
+      entity_id: "entity_id"
+      version: "version"
+  TextMessage:
+    required:
+    - "body"
+    - "from"
+    - "to"
+    properties:
+      body:
+        type: "string"
+        description: "The text of the message."
+      from:
+        type: "string"
+        description: "A technology specific URI specifying the source of the message.\
+          \ For sip and pjsip technologies, any SIP URI can be specified. For xmpp,\
+          \ the URI must correspond to the client connection being used to send the\
+          \ message."
+      to:
+        type: "string"
+        description: "A technology specific URI specifying the destination of the\
+          \ message. Valid technologies include sip, pjsip, and xmp. The destination\
+          \ of a message should be an endpoint."
+      variables:
+        type: "object"
+        description: "Technology specific key/value pairs (JSON object) associated\
+          \ with the message."
+        properties: {}
+    description: "A text message."
+  TextMessageReceived:
+    allOf:
+    - required:
+      - "message"
+      properties:
+        endpoint:
+          $ref: "#/definitions/Endpoint"
+        message:
+          $ref: "#/definitions/TextMessage"
+      description: "A text message was received from an endpoint."
+    - $ref: "#/definitions/Event"
+  Variable:
+    required:
+    - "value"
+    properties:
+      value:
+        type: "string"
+        description: "The value of the variable requested"
+    description: "The value of a channel variable"
+    example:
+      value: "value"

@@ -11,6 +11,7 @@ package asterisk_ari_go
 
 import (
 	"net/http"
+	"regexp"
 )
 
 // contextKeys are used to identify the type of value in the context.
@@ -58,9 +59,13 @@ type Configuration struct {
 	HTTPClient    *http.Client
 }
 
-func NewConfiguration() *Configuration {
+// NewConfiguration creates a new Configuration object to be passed to the client.
+// DO NOT INCLUDE "/ari" in the basePath.
+func NewConfiguration(basePath string) *Configuration {
+	var re = regexp.MustCompile(`\/.*`)
+	s := re.ReplaceAllString(basePath, `/ari`)
 	cfg := &Configuration{
-		BasePath:      "http://localhost:8088/ari",
+		BasePath:      s,
 		DefaultHeader: make(map[string]string),
 		UserAgent:     "Quintex-Asterisk/1.0.0/go",
 	}
